@@ -53,7 +53,7 @@ Examples:
   trinity-pipeline -i input_raw_fastq -s Paca --work-dir ./work
   
   # Run with custom threads and memory
-  trinity-pipeline -i input_raw_fastq -s Paca -t 8 --memory 100G
+  trinity-pipeline -i input_raw_fastq -s Paca -t 20 --max-workers 2 --memory 100G
         """
     )
     
@@ -95,29 +95,21 @@ Examples:
     parser.add_argument("--uniprot-file", default="uniprots.pep",
                        help="UniProt database filename (default: uniprots.pep)")
     
-    # Step 1: Quality control
-    parser.add_argument("--qc-max-workers", type=int, default=2,
-                       help="Max workers for parallel QC (default: 2)")
-    parser.add_argument("--qc-threads", type=int, default=4,
-                       help="Threads for each fastp process (default: 4)")
+    # Unified parameters
+    parser.add_argument("-t", "--threads", type=int, default=20,
+                       help="Number of threads for all steps (default: 20)")
+    parser.add_argument("--max-workers", type=int, default=2,
+                       help="Maximum parallel workers for parallel tasks (default: 15)")
     
     # Step 2: Trinity assembly
-    parser.add_argument("-t", "--threads", type=int, default=4,
-                       help="Number of threads for Trinity (default: 4)")
     parser.add_argument("--memory", default="50G",
                        help="Maximum memory for Trinity (default: 50G)")
     
     # Step 3: TransDecoder
-    parser.add_argument("--td-threads", type=int, default=4,
-                       help="Number of threads for TransDecoder (default: 4)")
     parser.add_argument("--min-protein-length", type=int, default=50,
                        help="Minimum protein length for TransDecoder (default: 50)")
     
     # Step 4: Salmon
-    parser.add_argument("--salmon-threads", type=int, default=20,
-                       help="Threads per salmon job (default: 20)")
-    parser.add_argument("--salmon-max-workers", type=int, default=15,
-                       help="Maximum parallel salmon jobs (default: 15)")
     parser.add_argument("--salmon-kmer", type=int, default=31,
                        help="k-mer size for Salmon (default: 31)")
     parser.add_argument("--skip-salmon-index", action="store_true",
@@ -128,8 +120,6 @@ Examples:
                        help="Expression threshold for filtering (default: 1)")
     
     # Step 6: DIAMOND
-    parser.add_argument("--diamond-threads", type=int, default=10,
-                       help="Number of threads for DIAMOND (default: 10)")
     parser.add_argument("--diamond-evalue", default="1e-5",
                        help="E-value threshold for DIAMOND (default: 1e-5)")
     
@@ -189,7 +179,7 @@ Examples:
         print("="*70)
         
         clean_files = cat_and_fastq.quality_control_parallel(
-            args.input, output_dirs[1], args.qc_max_workers, args.qc_threads
+            args.input, output_dirs[1], args.max_workers, args.threads
         )
         
         if not clean_files:
@@ -232,7 +222,7 @@ Examples:
             run_transdecoder.run_transdecoder,
             trinity_fasta,
             output_dirs[3],
-            args.td_threads,
+            args.threads,
             args.min_protein_length
         ):
             print("Pipeline failed at step 3")
@@ -270,13 +260,13 @@ Examples:
                 'r1_file': reads['r1'],
                 'r2_file': reads['r2'],
                 'output_dir': sample_output_dir,
-                'threads': args.salmon_threads
+                'threads': args.threads
             })
         
         print(f"\nRunning Salmon quantification for {len(tasks)} samples...")
         successful_samples, failed_samples = [], []
         import concurrent.futures
-        with concurrent.futures.ProcessPoolExecutor(max_workers=args.salmon_max_workers) as executor:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=args.max_workers) as executor:
             future_to_task = {executor.submit(run_salmon.run_salmon_quant, **task): task for task in tasks}
             
             for future in concurrent.futures.as_completed(future_to_task):
@@ -343,7 +333,7 @@ Examples:
             run_diamond_b2b.run_diamond_makedb,
             low_pep,
             low_db,
-            args.diamond_threads
+            args.threads
         ):
             print("Pipeline failed at step 6 (database creation)")
             sys.exit(1)
@@ -353,7 +343,7 @@ Examples:
             run_diamond_b2b.run_diamond_makedb,
             uniprot_pep,
             uniprot_db,
-            args.diamond_threads
+            args.threads
         ):
             print("Pipeline failed at step 6 (UniProt database creation)")
             sys.exit(1)
@@ -366,7 +356,7 @@ Examples:
             f"{uniprot_db}.dmnd",
             forward_result,
             args.diamond_evalue,
-            args.diamond_threads
+            args.threads
         ):
             print("Pipeline failed at step 6 (forward alignment)")
             sys.exit(1)
@@ -379,7 +369,7 @@ Examples:
             f"{low_db}.dmnd",
             reverse_result,
             args.diamond_evalue,
-            args.diamond_threads
+            args.threads
         ):
             print("Pipeline failed at step 6 (reverse alignment)")
             sys.exit(1)

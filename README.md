@@ -61,10 +61,9 @@ With custom parameters:
 ```bash
 trinity-pipeline -i input_raw_fastq -s Paca \
     --work-dir ./work \
-    -t 8 \
-    --memory 100G \
-    --qc-max-workers 4 \
-    --salmon-threads 20
+    -t 20 \
+    --max-workers 2 \
+    --memory 100G
 ```
 
 ### Running Individual Steps
@@ -143,14 +142,9 @@ trinity-pipeline -i input -s species \
 
 ```bash
 trinity-pipeline -i input -s species \
-    -t 8 \                    # Trinity threads
-    --memory 100G \           # Trinity memory
-    --qc-max-workers 4 \      # QC parallel workers
-    --qc-threads 2 \          # fastp threads per sample
-    --td-threads 8 \          # TransDecoder threads
-    --salmon-threads 20 \     # Salmon threads per sample
-    --salmon-max-workers 15 \ # Parallel Salmon jobs
-    --diamond-threads 10      # DIAMOND threads
+    -t 20 \                   # Threads for all steps (default: 20)
+    --max-workers 2 \        # Maximum parallel workers (default: 2)
+    --memory 100G             # Trinity memory (default: 50G)
 ```
 
 ## Input Requirements
@@ -179,12 +173,13 @@ The pipeline creates the following output directories:
 
 ### Default Parameters
 
-- Quality control: 2 parallel workers, 4 threads per fastp
-- Trinity: 4 threads, 50G memory
-- TransDecoder: 4 threads, minimum protein length 50
-- Salmon: 20 threads per sample, 15 parallel jobs, k-mer size 31
+- Threads: 20 (applied to all steps)
+- Max workers: 15 (for parallel tasks)
+- Trinity: 50G memory
+- TransDecoder: minimum protein length 50
+- Salmon: k-mer size 31
 - Expression filtering: threshold = 1 (NumReads)
-- DIAMOND: 10 threads, E-value 1e-5
+- DIAMOND: E-value 1e-5
 
 ### Customizing Parameters
 
