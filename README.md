@@ -204,9 +204,6 @@ trinity-assembly --help
 
 4. **File not found errors**: Ensure previous steps completed successfully and output files exist before running subsequent steps.
 
-## License
-
-MIT License
 
 ## Author
 
@@ -224,5 +221,6 @@ https://github.com/yuzijian/trinity-annotation-pipeline
 ## Support
 
 For issues and questions, please open an issue on GitHub or contact the author.
+
 
 
