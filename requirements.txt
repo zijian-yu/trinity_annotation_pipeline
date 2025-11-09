@@ -1,0 +1,14 @@
+# Core dependencies
+tqdm>=4.65.0
+pandas>=1.5.0
+biopython>=1.79
+
+# Note: The following external tools need to be installed separately:
+# - fastp (for quality control)
+# - Trinity (for transcriptome assembly)
+# - TransDecoder (for ORF prediction)
+# - Salmon (for transcript quantification)
+# - DIAMOND (for protein alignment)
+#
+# Please refer to the README.md for installation instructions of these tools.
+
