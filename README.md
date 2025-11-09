@@ -210,7 +210,7 @@ MIT License
 
 ## Author
 
-yuzijian (yuzijian1010@163.com)
+yuzijian (yuzijian@stu.ouc.edu.cn or yuzijian1010@163.com)
 
 ## Citation
 
@@ -224,4 +224,5 @@ https://github.com/yuzijian/trinity-annotation-pipeline
 ## Support
 
 For issues and questions, please open an issue on GitHub or contact the author.
+
 
