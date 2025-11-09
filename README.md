@@ -2,7 +2,7 @@
 
 A comprehensive Python package for transcriptome assembly, annotation, and quantification using Trinity, TransDecoder, Salmon, and DIAMOND.
 
-![pipline](D:\Desktop\trinity_annotation_and_TPM\V4\trinity_annotation_pipeline\pipline.jpg)
+![pipline](pipline.jpg)
 
 ## Features
 
@@ -223,4 +223,5 @@ https://github.com/yuzijian/trinity-annotation-pipeline
 ## Support
 
 For issues and questions, please open an issue on GitHub or contact the author.
+
 
